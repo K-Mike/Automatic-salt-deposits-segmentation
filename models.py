@@ -1,10 +1,7 @@
 from torch import nn
 import torch
-from torchvision import models
 import torchvision
 from torch.nn import functional as F
-from torch.nn import Sequential
-from collections import OrderedDict
 import pretrainedmodels
 
 from . import blocks
@@ -14,22 +11,17 @@ class UNetResNextHyperSE(nn.Module):
     """PyTorch U-Net model using ResNet(34, 101 or 152) encoder.
 
     UNet: https://arxiv.org/abs/1505.04597
-    ResNet: https://arxiv.org/abs/1512.03385
-    Proposed by Alexander Buslaev: https://www.linkedin.com/in/al-buslaev/
+    ResNext: https://arxiv.org/abs/1611.05431
 
     Args:
-            encoder_depth (int): Depth of a ResNet encoder (34, 101 or 152).
-            num_classes (int): Number of output classes.
-            num_filters (int, optional): Number of filters in the last layer of decoder. Defaults to 32.
-            dropout_2d (float, optional): Probability factor of dropout layer before output layer. Defaults to 0.2.
-            pretrained (bool, optional):
-                False - no pre-trained weights are being used.
-                True  - ResNet encoder is pre-trained on ImageNet.
-                Defaults to False.
-            is_deconv (bool, optional):
-                False: bilinear interpolation is used in decoder.
-                True: deconvolution is used in decoder.
-                Defaults to False.
+    encoder_depth (int): Depth of a ResNet encoder (34, 101 or 152).
+    num_classes (int): Number of output classes.
+    num_filters (int, optional): Number of filters in the last layer of decoder. Defaults to 32.
+    dropout_2d (float, optional): Probability factor of dropout layer before output layer. Defaults to 0.2.
+    is_deconv (bool, optional):
+        False: bilinear interpolation is used in decoder.
+        True: deconvolution is used in decoder.
+        Defaults to False.
 
     """
 
@@ -106,22 +98,17 @@ class UNetResNext(nn.Module):
     """PyTorch U-Net model using ResNet(34, 101 or 152) encoder.
 
     UNet: https://arxiv.org/abs/1505.04597
-    ResNet: https://arxiv.org/abs/1512.03385
-    Proposed by Alexander Buslaev: https://www.linkedin.com/in/al-buslaev/
+    ResNext: https://arxiv.org/abs/1611.05431
 
     Args:
-            encoder_depth (int): Depth of a ResNet encoder (34, 101 or 152).
-            num_classes (int): Number of output classes.
-            num_filters (int, optional): Number of filters in the last layer of decoder. Defaults to 32.
-            dropout_2d (float, optional): Probability factor of dropout layer before output layer. Defaults to 0.2.
-            pretrained (bool, optional):
-                False - no pre-trained weights are being used.
-                True  - ResNet encoder is pre-trained on ImageNet.
-                Defaults to False.
-            is_deconv (bool, optional):
-                False: bilinear interpolation is used in decoder.
-                True: deconvolution is used in decoder.
-                Defaults to False.
+    encoder_depth (int): Depth of a ResNet encoder (34, 101 or 152).
+    num_classes (int): Number of output classes.
+    num_filters (int, optional): Number of filters in the last layer of decoder. Defaults to 32.
+    dropout_2d (float, optional): Probability factor of dropout layer before output layer. Defaults to 0.2.
+    is_deconv (bool, optional):
+        False: bilinear interpolation is used in decoder.
+        True: deconvolution is used in decoder.
+        Defaults to False.
 
     """
 
@@ -180,26 +167,26 @@ class UNetResNet(nn.Module):
 
     UNet: https://arxiv.org/abs/1505.04597
     ResNet: https://arxiv.org/abs/1512.03385
-    Proposed by Alexander Buslaev: https://www.linkedin.com/in/al-buslaev/
 
     Args:
-            encoder_depth (int): Depth of a ResNet encoder (34, 101 or 152).
-            num_classes (int): Number of output classes.
-            num_filters (int, optional): Number of filters in the last layer of decoder. Defaults to 32.
-            dropout_2d (float, optional): Probability factor of dropout layer before output layer. Defaults to 0.2.
-            pretrained (bool, optional):
-                False - no pre-trained weights are being used.
-                True  - ResNet encoder is pre-trained on ImageNet.
-                Defaults to False.
-            is_deconv (bool, optional):
-                False: bilinear interpolation is used in decoder.
-                True: deconvolution is used in decoder.
-                Defaults to False.
+    encoder_depth (int): Depth of a ResNet encoder (34, 101 or 152).
+    num_classes (int): Number of output classes.
+    num_filters (int, optional): Number of filters in the last layer of decoder. Defaults to 32.
+    dropout_2d (float, optional): Probability factor of dropout layer before output layer. Defaults to 0.2.
+    pretrained (bool, optional):
+        False - no pre-trained weights are being used.
+        True  - ResNet encoder is pre-trained on ImageNet.
+        Defaults to False.
+    is_deconv (bool, optional):
+        False: bilinear interpolation is used in decoder.
+        True: deconvolution is used in decoder.
+        Defaults to False.
 
     """
 
     def __init__(self, encoder_depth, num_classes, num_filters=32, dropout_2d=0.2,
                  pretrained=False, is_deconv=False):
+
         super().__init__()
         self.num_classes = num_classes
         self.dropout_2d = dropout_2d
@@ -250,3 +237,36 @@ class UNetResNet(nn.Module):
         dec1 = F.dropout2d(self.dec1(torch.cat([dec2, conv1], 1)), p=self.dropout_2d)
 
         return self.final(dec1)
+
+
+def get_model(model_type, **model_pars):
+    """
+    Create a new model
+
+    :param model_type: str, type of model, one of ['UNet11', 'UNet16', 'LinkNet34', 'UNet']
+    :param model_pars: dict, initialization parameters for the model
+    :return: instance of nn.Module, a new Pytorch model
+    """
+
+    if model_type == 'UNetResNet34':
+        return UNetResNet(encoder_depth=34, num_classes=1, pretrained=True,  num_filters=32, is_deconv=True, dropout_2d=0.2)
+
+    if model_type == 'UNetResNet101':
+        return UNetResNet(encoder_depth=101, num_classes=1, pretrained=True, num_filters=32, is_deconv=True, dropout_2d=0.2)
+
+    if model_type == 'UNetResNet152':
+        return UNetResNet(encoder_depth=152, num_classes=1, pretrained=True, num_filters=32, is_deconv=True, dropout_2d=0.2)
+
+    if model_type == 'UNetResNext50':
+        return UNetResNext(encoder_depth=50, num_classes=1, num_filters=16, is_deconv=True, dropout_2d=0)
+
+    if model_type == 'UNetResNext101_32x4d':
+        return UNetResNext(encoder_depth=101, num_classes=1, num_filters=32, is_deconv=True, dropout_2d=0.2)
+
+    if model_type == 'UNetResNextHyperSE50':
+        return UNetResNextHyperSE(encoder_depth=50, num_classes=1, num_filters=32, is_deconv=True, dropout_2d=0.2)
+
+    if model_type == 'UNetResNextHyperSE101':
+        return UNetResNextHyperSE(encoder_depth=101, num_classes=1, num_filters=32, is_deconv=True, dropout_2d=0.2)
+
+    raise ValueError('Unknown model type: {}'.format(model_type))

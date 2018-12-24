@@ -1,10 +1,6 @@
 from torch import nn
 import torch
-from torchvision import models
-import torchvision
 from torch.nn import functional as F
-from torch.nn import Sequential
-from collections import OrderedDict
 
 
 class ChannelAttentionGate(nn.Module):

@@ -1,3 +1,5 @@
+# This code is from https://github.com/bermanmaxim/LovaszSoftmax
+
 """
 Lovasz-Softmax and Jaccard hinge loss in PyTorch
 Maxim Berman 2018 ESAT-PSI KU Leuven (MIT License)
@@ -203,6 +205,7 @@ def flatten_probas(probas, labels, ignore=None):
     vprobas = probas[valid.nonzero().squeeze()]
     vlabels = labels[valid]
     return vprobas, vlabels
+
 
 def xloss(logits, labels, ignore=None):
     """

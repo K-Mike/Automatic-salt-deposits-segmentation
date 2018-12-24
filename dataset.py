@@ -1,7 +1,5 @@
 import torch
 import os
-import random
-from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import cv2
